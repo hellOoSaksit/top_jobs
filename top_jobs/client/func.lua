@@ -452,7 +452,7 @@ TaskProcess = function(delay)
     end
     local data = CurrentActionPorcessData.ModeSetting.Process
     playSound(data.Sound)
-    TriggerEvent("mythic_progbar:client:progress", {
+    TriggerEvent("mythic_progressbar:client:progress", {
         name = "unique_action_name",
         duration = data.Duration,
         label = Config.Text['cancle_key'],

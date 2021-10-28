@@ -20,6 +20,14 @@ end)
 AddEventHandler('playerDropped', function (reason)
 end)
 
+RegisterServerEvent('top_jobs:useitemEnable')
+AddEventHandler('top_jobs:useitemEnable', function(data)
+    ESX.RegisterUsableItem(data, function(source)
+        local xPlayer = ESX.GetPlayerFromId(source)
+
+    end)
+end)
+
 RegisterServerEvent('top_jobs:processItems')
 AddEventHandler('top_jobs:processItems', function(data, data2, auto)
     local xPlayer = ESX.GetPlayerFromId(source)

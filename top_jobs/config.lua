@@ -14,6 +14,7 @@ local Model         = function (a, b) return { Model = a, IsModel = b } end
 
 Config = { }
 Config.ESXOLD = false -- ใช้ esx เวอชั่นอะไร 1.1 ปรับ true / 1.2 + ปรับ false
+Config.ProcessBar = ''
 Config.Setting = {
     AreaDistance = 50.0,
     ShowTextDistance = 6.0,
@@ -66,6 +67,7 @@ Config.Item = true      --โหมดสำหรับ ถ้าต้อง�
 Config.Freeze = false   -- สำหรับเซิฟที่ต้องให้ ตอนเก็บจะโดน Freeze 
 Config.disable = true   -- สำหรับเซิฟที่ต้องให้ ตอนเก็บจะโดน ปิดปุ่มเคลือนไหม รวมทั้ง SHIFT-H
 Config.disableX = true  --สำหรับปิดไม่ให้กดยกเลิกได้
+Config.EnableItem = false -- สำหรับเซิฟที่ต้องการให้ ต้องกดใช้ไอเทมถึงจะทำงาน
 Config.Jobs = {
 --------------------------------------------------------------------------------------------------------------------------------------------------------
 ["stone"] = {
@@ -87,8 +89,8 @@ Config.Jobs = {
             Position    = vector3(2945.21,2788.32,40.22),
             
             Duration    = Second(8),
-            --Animation   = Animation("anim@amb@clubhouse@tutorial@bkr_tut_ig3@", "machinic_loop_mechandplayer"),
-            Animation   = Animation("WORLD_HUMAN_CONST_DRILL"),
+            --Animation   = Animation("WORLD_HUMAN_CONST_DRILL"),
+            Animation   = Animation("melee@large_wpn@streamed_core", "ground_attack_on_spot","prop_tool_pickaxe"),
             Sound       = Sound("", 0.1),
             UserItem    = "water", --จะมีผลก็ต่อเมือ ปรับ Config.Item = true  เท่านั้น
             GetItems    = {
@@ -188,7 +190,7 @@ Config.Jobs = {
             Duration    = Second(4),
             Animation   = Animation("anim@amb@clubhouse@tutorial@bkr_tut_ig3@", "machinic_loop_mechandplayer"),
             Sound       = Sound("", 0.1),
-
+            UserItem    = "water", --จะมีผลก็ต่อเมือ ปรับ Config.Item = true  เท่านั้น
             GetItems    = {
                 Item("shellfish", Count(1,2), false),
             }
@@ -235,7 +237,7 @@ Config.Jobs = {
             Duration    = Second(4),
             Animation   = Animation("anim@amb@clubhouse@tutorial@bkr_tut_ig3@", "machinic_loop_mechandplayer"),
             Sound       = Sound("", 0.1),
-
+            UserItem    = "water", --จะมีผลก็ต่อเมือ ปรับ Config.Item = true  เท่านั้น
             GetItems    = {
                 Item("orange", Count(1,2), false),
             }
@@ -283,7 +285,7 @@ Config.Jobs = {
             --Animation   = Animation("amb@world_human_hammering@male@base", "base", "prop_ld_fireaxe"),
             Animation   = Animation("amb@world_human_hammering@male@base", "base"),
             Sound       = Sound("", 0.1),
-
+            UserItem    = "water", --จะมีผลก็ต่อเมือ ปรับ Config.Item = true  เท่านั้น
             GetItems    = {
                 Item("treelove", Count(1,2), false),
             }
@@ -330,7 +332,7 @@ Config.Jobs = {
             Duration    = Second(4),
             Animation   = Animation("anim@amb@clubhouse@tutorial@bkr_tut_ig3@", "machinic_loop_mechandplayer"),
             Sound       = Sound("", 0.1),
-
+            UserItem    = "water", --จะมีผลก็ต่อเมือ ปรับ Config.Item = true  เท่านั้น
             GetItems    = {
                 Item("mushroom", Count(1,2), false),
             }
@@ -377,7 +379,7 @@ Config.Jobs = {
             Duration    = Second(4),
             Animation   = Animation("anim@amb@clubhouse@tutorial@bkr_tut_ig3@", "machinic_loop_mechandplayer"),
             Sound       = Sound("dog", 0.1),
-
+            UserItem    = "water", --จะมีผลก็ต่อเมือ ปรับ Config.Item = true  เท่านั้น
             GetItems    = {
                 Item("dog", Count(1,2), false),
             }
@@ -424,7 +426,7 @@ Config.Jobs = {
             Duration    = Second(4),
             Animation   = Animation("anim@amb@clubhouse@tutorial@bkr_tut_ig3@", "machinic_loop_mechandplayer"),
             Sound       = Sound("cow", 0.1),
-
+            UserItem    = "water", --จะมีผลก็ต่อเมือ ปรับ Config.Item = true  เท่านั้น
             GetItems    = {
                 Item("cow", Count(1,2), false),
             }
@@ -471,7 +473,7 @@ Config.Jobs = {
             Duration    = Second(4),
             Animation   = Animation("anim@amb@clubhouse@tutorial@bkr_tut_ig3@", "machinic_loop_mechandplayer"),
             Sound       = Sound("MagicWand", 0.1),
-
+            UserItem    = "water", --จะมีผลก็ต่อเมือ ปรับ Config.Item = true  เท่านั้น
             GetItems    = {
                 Item("durian", Count(1,2), false),
             }
@@ -518,7 +520,7 @@ Config.Jobs = {
             Duration    = Second(4),
             Animation   = Animation("anim@amb@clubhouse@tutorial@bkr_tut_ig3@", "machinic_loop_mechandplayer"),
             Sound       = Sound("", 0.1),
-
+            UserItem    = "water", --จะมีผลก็ต่อเมือ ปรับ Config.Item = true  เท่านั้น
             GetItems    = {
                 Item("bee", Count(1,2), false),
             }
@@ -565,7 +567,7 @@ Config.Jobs = {
             Duration    = Second(4),
             Animation   = Animation("anim@amb@clubhouse@tutorial@bkr_tut_ig3@", "machinic_loop_mechandplayer"),
             Sound       = Sound("", 0.1),
-
+            UserItem    = "water", --จะมีผลก็ต่อเมือ ปรับ Config.Item = true  เท่านั้น
             GetItems    = {
                 Item("steel", Count(1,2), false),
                 Item("steel_a", Count(1,2), 2),

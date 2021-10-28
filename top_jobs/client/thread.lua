@@ -241,7 +241,6 @@ Citizen.CreateThread(function()
                         -- AddEventHandler('top_jobs:Returncheckitem', function(verify)
                         --    print("CLIENT", verify)
                         -- end)
-                        
                         if dist < setting.AreaDistance then
                                 isInMarker, currentJob, currentData = true, k, v
                         end
@@ -440,13 +439,13 @@ Citizen.CreateThread(function()
                                     playSound(ModeFirstData.Sound)
                                     FreezeEntityPosition(nearbyObject, true)
     
-                                    if ModeFirstData.Animation.Name == false then
-                                        TaskStartScenarioInPlace(PlayerPed, ModeFirstData.Animation.Dict, 0, false)
-                                    else
-                                        ESX.Streaming.RequestAnimDict(ModeFirstData.Animation.Dict, function()
-                                            TaskPlayAnim(PlayerPed, ModeFirstData.Animation.Dict, ModeFirstData.Animation.Name, 8.0, -8, -1, 49, 0, 0, 0, 0)
-                                        end)
-                                    end
+                                    -- if ModeFirstData.Animation.Name == false then
+                                    --     TaskStartScenarioInPlace(PlayerPed, ModeFirstData.Animation.Dict, 0, false)
+                                    -- else
+                                    --     ESX.Streaming.RequestAnimDict(ModeFirstData.Animation.Dict, function()
+                                    --         TaskPlayAnim(PlayerPed, ModeFirstData.Animation.Dict, ModeFirstData.Animation.Name, 8.0, -8, -1, 49, 0, 0, 0, 0)
+                                    --     end)
+                                    -- end
     
                                     if ModeFirstData.Animation.Prop then
                                         AddOnjToHand(ModeFirstData.Animation)
@@ -457,10 +456,11 @@ Citizen.CreateThread(function()
                                     if Config.disable then
                                         freezed = true
                                     end
-                                    TriggerEvent("mythic_progbar:client:progress", {
+                                    print(ModeFirstData.Animation.Prop)
+                                    TriggerEvent("mythic_progressbar:client:progress", {
                                         name = "unique_action_name",
                                         duration = ModeFirstData.Duration,
-                                        label = "",
+                                        label = "กำลังทำงาน",
                                         useWhileDead = false,
                                         canCancel = false,
                                         controlDisables = {
@@ -472,8 +472,9 @@ Citizen.CreateThread(function()
                                         animation = {
                                             animDict = ModeFirstData.Animation.Dict,
                                             anim = ModeFirstData.Animation.Name,
-                                        }
-                                    }, function()
+                                        },
+                                    }, 
+                                    function()
                                     
                                             if ModeFirstData ~= nil then
                                                 if ModeFirstData.Prop.IsModel then
@@ -557,22 +558,27 @@ Citizen.CreateThread(function()
                                     playSound(ModeFirstData.Sound)
                                     FreezeEntityPosition(nearbyObject, true)
     
-                                    if ModeFirstData.Animation.Name == false then
-                                        TaskStartScenarioInPlace(PlayerPed, ModeFirstData.Animation.Dict, 0, false)
-                                    else
-                                        ESX.Streaming.RequestAnimDict(ModeFirstData.Animation.Dict, function()
-                                            TaskPlayAnim(PlayerPed, ModeFirstData.Animation.Dict, ModeFirstData.Animation.Name, 8.0, -8, -1, 49, 0, 0, 0, 0)
-                                        end)
-                                    end
+                                    -- if ModeFirstData.Animation.Name == false then
+                                    --     TaskStartScenarioInPlace(PlayerPed, ModeFirstData.Animation.Dict, 0, false)
+                                    -- else
+                                    --     ESX.Streaming.RequestAnimDict(ModeFirstData.Animation.Dict, function()
+                                    --         TaskPlayAnim(PlayerPed, ModeFirstData.Animation.Dict, ModeFirstData.Animation.Name, 8.0, -8, -1, 49, 0, 0, 0, 0)
+                                    --     end)
+                                    -- end
     
                                     if ModeFirstData.Animation.Prop then
                                         AddOnjToHand(ModeFirstData.Animation)
                                     end
-    
-                                    TriggerEvent("mythic_progbar:client:progress", {
+                                    if Config.Freeze then
+                                    FreezeEntityPosition(GetPlayerPed(-1),true)
+                                    end
+                                    if Config.disable then
+                                        freezed = true
+                                    end
+                                    TriggerEvent("mythic_progressbar:client:progress", {
                                         name = "unique_action_name",
                                         duration = ModeFirstData.Duration,
-                                        label = "",
+                                        label = "กำลังทำงาน",
                                         useWhileDead = false,
                                         canCancel = false,
                                         controlDisables = {
@@ -585,7 +591,8 @@ Citizen.CreateThread(function()
                                             animDict = ModeFirstData.Animation.Dict,
                                             anim = ModeFirstData.Animation.Name,
                                         }
-                                    }, function()
+                                    }, 
+                                    function()
                                     
                                             if ModeFirstData ~= nil then
                                                 if ModeFirstData.Prop.IsModel then
@@ -601,12 +608,13 @@ Citizen.CreateThread(function()
                                                 ModeFirstData.EntityCount = ModeFirstData.EntityCount - 1
                                                     TaskFirstModeCheckSpawn()
                                             end
-                                    
+                                        FreezeEntityPosition(GetPlayerPed(-1),false)
                                         ClearPedTasksImmediately(PlayerPed)
                                         ClearPropOnHand()
+                                        freezed = false
                                         IsAction = false
                                         killin = false
-                                    end)
+                                end)
                                     
                                     --ClearPedTasks(PlayerPed)
                                     end
@@ -641,7 +649,7 @@ Citizen.CreateThread(function()
                             if IsControlJustReleased(0, 38) and not IsAction then
                                 IsAction = true
                                 playSound(ModeSecondData.Sound)
-                                TriggerEvent("mythic_progbar:client:progress", {
+                                TriggerEvent("mythic_progressbar:client:progress", {
                                     name = "unique_action_name",
                                     duration = ModeSecondData.Duration,
                                     label = "",
@@ -689,7 +697,7 @@ Citizen.CreateThread(function()
                             if IsControlJustReleased(0, 38) and not IsAction then
                                 IsAction = true
                                 playSound(ModeSecondData.Sound)
-                                TriggerEvent("mythic_progbar:client:progress", {
+                                TriggerEvent("mythic_progressbar:client:progress", {
                                     name = "unique_action_name",
                                     duration = ModeSecondData.Duration/4,
                                     label = "",
