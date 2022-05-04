@@ -31,15 +31,15 @@ AddEventHandler('onResourceStop', function(resourceName)
     end
 end)
 
-RegisterNetEvent('top_jobs:TaskProcess')
-AddEventHandler('top_jobs:TaskProcess', function(delay)
+RegisterNetEvent('uilt_jobs:TaskProcess')
+AddEventHandler('uilt_jobs:TaskProcess', function(delay)
     if not IsPedInAnyVehicle(PlayerPed, false) and not IsEntityDead(PlayerPed) then
         TaskProcess(delay)
     end
 end)
 
-RegisterNetEvent('top_jobs:TaskRareAnimation')
-AddEventHandler('top_jobs:TaskRareAnimation', function(name)
+RegisterNetEvent('uilt_jobs:TaskRareAnimation')
+AddEventHandler('uilt_jobs:TaskRareAnimation', function(name)
     if isDead then return end
     while TaskRareAnimation do Citizen.Wait(100) end
 
@@ -57,4 +57,33 @@ AddEventHandler('top_jobs:TaskRareAnimation', function(name)
         TaskRareAnimation = false
     end
 
+end)
+
+--Update 29/4/2565
+RegisterNetEvent("TaskSecondMode:Check")
+AddEventHandler("TaskSecondMode:Check", function(data)
+    local CurrentActionData = Config.Jobs[CurrentActionJob]
+    local CheckMoneyTex_2 = data
+    if CheckMoneyTex_2 then
+      EnableTex_2 = true
+      print('Func:1')
+      TaskSecondMode(CurrentActionData.ModeSetting)
+    else
+      EnableTex_2 = false
+      print('Func:2 | No Money')
+    end
+end)
+
+RegisterNetEvent("TaskFristMode:Check")
+AddEventHandler("TaskFristMode:Check", function(data)
+    local CurrentActionData = Config.Jobs[CurrentActionJob]
+    local CheckMoneyTex_1 = data
+    if CheckMoneyTex_1 then
+      EnableTex_1 = true
+      print('Func:1')
+      TaskFirstMode(CurrentActionData.ModeSetting)
+    else
+      EnableTex_1 = false
+      print('Func:2 | No Money')
+    end
 end)

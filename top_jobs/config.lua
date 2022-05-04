@@ -13,12 +13,14 @@ local Model         = function (a, b) return { Model = a, IsModel = b } end
 ----------------------
 
 Config = { }
-Config.ESXOLD = false -- ใช้ esx เวอชั่นอะไร 1.1 ปรับ true / 1.2 + ปรับ false
-Config.ProcessBar = ''
+Config.ESXOld = false --ถ้า ระบบ Limit ปรับ true | Weight ปรับ false
+
+Config.MoneyTaxPay = true --ระบบหักภาษีเมือทำงาน
+
 Config.Setting = {
-    AreaDistance = 50.0,
+    AreaDistance = 100.0,
     ShowTextDistance = 6.0,
-    ActionDistance = 1.5,
+    ActionDistance = 2,
 }
 
 Config.Text = {
@@ -41,7 +43,7 @@ Config.Text = {
 -- Count(1,3) = สุ่ม Count(1) ไม่สุ่ม
 -- Item("ชื่อไอเท็ม", Count(จำนวน), เปอร์เซน)        เปอร์เซน ใส่ false คือได้ 100% 
 -- Model("ชื่อ prop", IsModel )                   sModel ใส่ false คือ เป็น prop ใส่ true เป็น model
-
+-- MoneyTax                                     จำนวนเงินที่ผู้เล่นจะต้องเสียภาษาเพือทำงาน
 -- PropSetting = { 
 --     MaxSpawn = 4,        จำนวน prop ที่จะ spawn        | สำคัญ   
 --     Width = 6,           ระยะความกว่าที่ prop จะ spawn   | สำคัญ   
@@ -50,7 +52,6 @@ Config.Text = {
 --     Attack = true,       prop โจมตีผู้เล่น               | ไม่สำคัญ   
 --     Health = 130         เลือด prop                   | ไม่สำคัญ   
 -- },
-
 -------------------------
 --     Rare Item Alert
 ------------------------
@@ -63,11 +64,7 @@ Config.RareItemAlert = {
 -------------------------
 --    END
 ------------------------
-Config.Item = true      --โหมดสำหรับ ถ้าต้องการใช้ ไอเทมสำหรับเริ่มงาน
-Config.Freeze = false   -- สำหรับเซิฟที่ต้องให้ ตอนเก็บจะโดน Freeze 
-Config.disable = true   -- สำหรับเซิฟที่ต้องให้ ตอนเก็บจะโดน ปิดปุ่มเคลือนไหม รวมทั้ง SHIFT-H
-Config.disableX = true  --สำหรับปิดไม่ให้กดยกเลิกได้
-Config.EnableItem = false -- สำหรับเซิฟที่ต้องการให้ ต้องกดใช้ไอเทมถึงจะทำงาน
+
 Config.Jobs = {
 --------------------------------------------------------------------------------------------------------------------------------------------------------
 ["stone"] = {
@@ -75,7 +72,7 @@ Config.Jobs = {
     ModeSetting = {
         -- จุดกดเริ่มงาน
         Start = {
-            NPC         = CreateNPC("~n~[🗿 หาแร่ 🗿]", "s_m_m_strvend_01", 2968.31, 2817.81, 43.75, 306.87),
+            NPC         = CreateNPC("~n~[หาแร่]", "s_m_m_strvend_01", 2968.31, 2817.81, 43.75, 306.87),
             Blip        = CreateBlip("🗿 หาแร่", 383,0, 1.0),
             Sound       = Sound("hello", 0.1),
         },
@@ -84,515 +81,482 @@ Config.Jobs = {
         Pickup = {
             Text        = "แร่",
             TimeOut     = Minute(15),
-            Prop        = Model("crystal", false),
+            Prop        = Model("stone_rca_001", false),
             PropSetting = { MaxSpawn = 10,  Width = 15, Movement = false,  Delay = Second(3) },
             Position    = vector3(2945.21,2788.32,40.22),
             
-            Duration    = Second(8),
+            Duration    = Second(2),
+            Animation   = Animation("mining@stornbot@head_000_r", "head_000_r"),
             --Animation   = Animation("WORLD_HUMAN_CONST_DRILL"),
-            Animation   = Animation("melee@large_wpn@streamed_core", "ground_attack_on_spot","prop_tool_pickaxe"),
             Sound       = Sound("", 0.1),
-            UserItem    = "water", --จะมีผลก็ต่อเมือ ปรับ Config.Item = true  เท่านั้น
+            Moneytex    = 10,   --Config.MoneyTaxPay ปรับ = true ถึงทำงาน
             GetItems    = {
-                Item("stone", Count(1,2), false),
+                Item("puzzle_stone", Count(1,3), false),
             }
         },
 
         -- จุดโพรเสซ
         Process = {
             NPC         = CreateNPC("~n~โพรเสซ แร่", "mp_m_weed_01", 315.21,2851.05,43.55,301.3),
-            Blip        = CreateBlip("⌛ โพรเสซ แร่", 383,0, 1.0),
+            Blip        = CreateBlip("โพรเสซ แร่", 383,0, 1.0),
             
-            Duration    = Second(5),
+            Duration    = Second(3),
             Animation   = Animation("rcmbarry", "bar_1_attack_idle_aln"),
             Sound       = Sound("", 0.1),
 
             AutoProcess = true,
             RemoveItems = {
-                Item("stone", Count(1), false),
+                Item("puzzle_stone", Count(1), false),
             },
+
+            
             GetItems    = {
-                Item("stone_a", Count(1,1), false),
-                Item("stone_diamond", Count(1,1), 1),
-                Item("stone_gold", Count(1,1), 4),
-                Item("stone_copper", Count(1,1), 7),
-                Item("stone_steel", Count(1,1), 8),
+                Item("grout", Count(1,2), false),
+                Item("copper_stone", Count(1,1), 8),
+                Item("gold_stone", Count(1,1), 4),
+                Item("diamond", Count(1,1), 3),
             }
         }
     }
 },
---------------------------------------------------------------------------------------------------------------------------------------------------------
-["shrimp"] = {
+------------------------------------------------------------------------------------------------------------------------------------------------
+["oil"] = {
     Mode = 1,
     ModeSetting = {
         -- จุดกดเริ่มงาน
         Start = {
-            NPC         = CreateNPC("~n~[จับกุ้ง]", "s_m_m_strvend_01", -1535.11,-1159.04,2,95.86),
-            Blip        = CreateBlip("จับกุ้ง", 387, 0, 1.0),
+            NPC         = CreateNPC("~n~[น้ำมัน]", "s_m_m_strvend_01",607.28,2862.18,39.99,339.49),
+            Blip        = CreateBlip("เก็บน้ำมัน", 383,0, 1.0),
             Sound       = Sound("hello", 0.1),
         },
 
         -- จุดงาน
         Pickup = {
-            Text        = "กุ้ง",
-            TimeOut     = Minute(4),
-            Prop        = Model("lobsterxl", false),
-            PropSetting = { MaxSpawn = 10,  Width = 17, Movement = false,  Delay = Second(3) },
-            Position    = vector3(-1509.85,-1150.87,0.21),
+            Text        = "เก็บน้ำมัน",
+            TimeOut     = Minute(15),
+            Prop        = Model("rca_tank_001", false),
+            PropSetting = { MaxSpawn = 10,  Width = 15, Movement = false,  Delay = Second(3) },
+            Position    = vector3(600.24,2898.79,39.96),
             
-            Duration    = Second(4),
-            Animation   = Animation("anim@amb@clubhouse@tutorial@bkr_tut_ig3@", "machinic_loop_mechandplayer"),
+            Duration    = Second(2),
+            --Animation   = Animation("mining@stornbot@head_000_r", "head_000_r"),
+            Animation   = Animation("WORLD_HUMAN_CONST_DRILL"),
             Sound       = Sound("", 0.1),
-            UserItem    = "water", --จะมีผลก็ต่อเมือ ปรับ Config.Item = true  เท่านั้น
+            Moneytex    = 10,   --Config.MoneyTaxPay ปรับ = true ถึงทำงาน
             GetItems    = {
-                Item("prawn", Count(1,2), false),
+                Item("crude_oil", Count(1,3), false),
             }
         },
 
         -- จุดโพรเสซ
         Process = {
-            NPC         = CreateNPC("~n~โพรเสซ กุ้ง", "mp_m_weed_01", -1836.71,-1208.49,14.31,150.54),
-            Blip        = CreateBlip("⌛ โพรเสซ กุ้ง", 387, 0, 1.0),
+            NPC         = CreateNPC("~n~โพรเสซ น้ำมัน", "mp_m_weed_01", 597.26,2929.02,40.92,43.78),
+            Blip        = CreateBlip("โพรเสซ น้ำมัน", 383,0, 1.0),
             
-            Duration    = Second(5),
+            Duration    = Second(3),
             Animation   = Animation("rcmbarry", "bar_1_attack_idle_aln"),
-            Sound       = Sound("cooking", 0.1),
+            Sound       = Sound("", 0.1),
 
             AutoProcess = true,
             RemoveItems = {
-                Item("prawn", Count(2), false),
+                Item("crude_oil", Count(1), false),
             },
+
+            
             GetItems    = {
-                Item("prawn_a", Count(1,1), false),
+                Item("engine_oil", Count(1,1), false),
+                Item("oil", Count(1,1), 2),
             }
         }
     }
 },
---------------------------------------------------------------------------------------------------------------------------------------------------------
-["shellfish"] = {
+------------------------------------------------------------------------------------------------------------------------------------------------
+["deer"] = {
     Mode = 1,
     ModeSetting = {
         -- จุดกดเริ่มงาน
         Start = {
-            NPC         = CreateNPC("~n~[เก็บหอย]", "s_m_m_strvend_01", 1530.19,6617,2.32,19.18),
-            Blip        = CreateBlip("เก็บหอย", 384, 0, 1.0),
+            NPC         = CreateNPC("~n~[ฆ่ากวาง]", "s_m_m_strvend_01",-1364.26,4451.22,24.62),
+            Blip        = CreateBlip("ฆ่ากวาง", 383,0, 1.0),
             Sound       = Sound("hello", 0.1),
         },
 
         -- จุดงาน
         Pickup = {
-            Text        = "หอย",
-            TimeOut     = Minute(4),
-            Prop        = Model("slow_propjob_shell", false),
-            PropSetting = { MaxSpawn = 6,  Width = 10, Movement = false,  Delay = Second(3) },
-            Position    = vector3(1523.68,6627.38,2.49),
-            
-            Duration    = Second(4),
-            Animation   = Animation("anim@amb@clubhouse@tutorial@bkr_tut_ig3@", "machinic_loop_mechandplayer"),
+            Text        = "ฆ่ากวาง",
+            TimeOut     = Minute(15),
+            Prop        = Model("a_c_deer", true),
+            PropSetting = { MaxSpawn = 3,  Width = 15, Movement = true,  Delay = Second(1), Health = 110, Attack = true , Waepons = "weapon_musket" , Amm = 10},
+            Position    = vector3(-1376.85,4397.48,36.53),
+            Duration    = Second(2),
+            --Animation   = Animation("mining@stornbot@head_000_r", "head_000_r"),
+            Animation   = Animation("WORLD_HUMAN_CONST_DRILL"),
             Sound       = Sound("", 0.1),
-            UserItem    = "water", --จะมีผลก็ต่อเมือ ปรับ Config.Item = true  เท่านั้น
+            Moneytex    = 10,   --Config.MoneyTaxPay ปรับ = true ถึงทำงาน
             GetItems    = {
-                Item("shellfish", Count(1,2), false),
+                Item("deer_carcass", Count(1,3), false),
             }
         },
 
         -- จุดโพรเสซ
         Process = {
-            NPC         = CreateNPC("~n~โพรเสซ หอย", "mp_m_weed_01", -1920.92,2052.98,140.73,258.73),
-            Blip        = CreateBlip("⌛ โพรเสซ หอย", 384, 0, 1.0),
+            NPC         = CreateNPC("~n~ชำแหละเนื้อกวาง", "mp_m_weed_01", -1337.17,4416.93,30.49,68.38),
+            Blip        = CreateBlip("ชำแหละเนื้อกวาง", 383,0, 1.0),
             
-            Duration    = Second(5),
+            Duration    = Second(3),
             Animation   = Animation("rcmbarry", "bar_1_attack_idle_aln"),
-            Sound       = Sound("cooking", 0.1),
+            Sound       = Sound("", 0.1),
 
             AutoProcess = true,
             RemoveItems = {
-                Item("shellfish", Count(2), false),
+                Item("deer_carcass", Count(1), false),
             },
+
+            
             GetItems    = {
-                Item("shellfish_a", Count(1,1), false),
+                Item("venison", Count(1,1), false),
+                Item("antler", Count(1,1), 50),
             }
         }
     }
 },
---------------------------------------------------------------------------------------------------------------------------------------------------------
-["orange"] = {
+------------------------------------------------------------------------------------------------------------------------------------------------
+["wood"] = {
     Mode = 1,
     ModeSetting = {
         -- จุดกดเริ่มงาน
         Start = {
-            NPC         = CreateNPC("~n~[🍊 เก็บส้ม 🍊]", "s_m_m_strvend_01", 253.02,6460.29,31.25,7.73),
-            Blip        = CreateBlip("🍊 เก็บส้ม", 385, 0, 1.5),
+            NPC         = CreateNPC("~n~[ตัดไม้]", "s_m_m_strvend_01",-727.97,5374.74,58.5,63.03),
+            Blip        = CreateBlip("ตัดไม้", 383,0, 1.0),
             Sound       = Sound("hello", 0.1),
         },
 
         -- จุดงาน
         Pickup = {
-            Text        = "🍊 ส้ม 🍊",
-            TimeOut     = Minute(4),
-            Prop        = Model("orangejob", false),
-            PropSetting = { MaxSpawn = 7,  Width = 14, Movement = false,  Delay = Second(3) },
-            Position    = vector3(253.02,6460.29,31.25),
+            Text        = "รับงานตัดไม้",
+            TimeOut     = Minute(15),
+            Prop        = Model("rca_tree_001", false),
+            PropSetting = { MaxSpawn = 10,  Width = 15, Movement = false,  Delay = Second(3) },
+            Position    = vector3(-712.76,5364.35,62.72),
             
-            Duration    = Second(4),
-            Animation   = Animation("anim@amb@clubhouse@tutorial@bkr_tut_ig3@", "machinic_loop_mechandplayer"),
+            Duration    = Second(2),
+            --Animation   = Animation("mining@stornbot@head_000_r", "head_000_r"),
+            Animation   = Animation("WORLD_HUMAN_CONST_DRILL"),
             Sound       = Sound("", 0.1),
-            UserItem    = "water", --จะมีผลก็ต่อเมือ ปรับ Config.Item = true  เท่านั้น
+            Moneytex    = 10,   --Config.MoneyTaxPay ปรับ = true ถึงทำงาน
             GetItems    = {
-                Item("orange", Count(1,2), false),
+                Item("wood", Count(1,3), false),
             }
         },
 
         -- จุดโพรเสซ
         Process = {
-            NPC         = CreateNPC("~n~🍊 โพรเสซ ส้ม 🍊", "mp_m_weed_01", -1921.88,2048.96,140.73,258.73),
-            Blip        = CreateBlip("⌛🍊 โพรเสซ ส้ม",385, 0, 1.5),
+            NPC         = CreateNPC("~n~แปรรูป ไม้", "mp_m_weed_01", -799.02,5399.13,34.29,10.26),
+            Blip        = CreateBlip("แปรรูป ไม้", 383,0, 1.0),
             
-            Duration    = Second(5),
+            Duration    = Second(3),
             Animation   = Animation("rcmbarry", "bar_1_attack_idle_aln"),
             Sound       = Sound("", 0.1),
 
             AutoProcess = true,
             RemoveItems = {
-                Item("orange", Count(2), false),
+                Item("wood", Count(1), false),
             },
+
+            
             GetItems    = {
-                Item("orange_a", Count(1,1), false),
+                Item("plywood", Count(1,2), false),
             }
         }
     }
 },
---------------------------------------------------------------------------------------------------------------------------------------------------------
-["treelove"] = {
+------------------------------------------------------------------------------------------------------------------------------------------------
+["kratom"] = {
     Mode = 1,
     ModeSetting = {
         -- จุดกดเริ่มงาน
         Start = {
-            NPC         = CreateNPC("~n~[❤️ ตัดไม้หัวใจ ❤️]", "s_m_m_strvend_01", -1632.05,4737.73,53.3,313.32),
-            Blip        = CreateBlip("❤️ ตัดไม้หัวใจ", 389,0, 1.0),
+            NPC         = CreateNPC("~n~[เก็บใบกระท่อม]", "s_m_m_strvend_01",2532.74,4782.2,34.69,163.95),
+            Blip        = CreateBlip("เก็บใบกระท่อม", 383,0, 1.0),
             Sound       = Sound("hello", 0.1),
         },
 
         -- จุดงาน
         Pickup = {
-            Text        = "❤️ ตัดไม้หัวใจ ❤️",
-            TimeOut     = Minute(4),
-            Prop        = Model("tree_love", false),
-            PropSetting = { MaxSpawn = 8,  Width = 17, Movement = false,  Delay = Second(3) },
-            Position    = vector3(-1632.05,4737.73,53.3),
+            Text        = "เก็บใบกระท่อม",
+            TimeOut     = Minute(15),
+            Prop        = Model("rca_kratom_001", false),
+            PropSetting = { MaxSpawn = 10,  Width = 15, Movement = false,  Delay = Second(3) },
+            Position    = vector3(2522.98,4825.27,34.36),
             
-            Duration    = Second(4),
-            --Animation   = Animation("amb@world_human_hammering@male@base", "base", "prop_ld_fireaxe"),
-            Animation   = Animation("amb@world_human_hammering@male@base", "base"),
+            Duration    = Second(2),
+            --Animation   = Animation("mining@stornbot@head_000_r", "head_000_r"),
+            Animation   = Animation("WORLD_HUMAN_CONST_DRILL"),
             Sound       = Sound("", 0.1),
-            UserItem    = "water", --จะมีผลก็ต่อเมือ ปรับ Config.Item = true  เท่านั้น
+            Moneytex    = 10,   --Config.MoneyTaxPay ปรับ = true ถึงทำงาน
             GetItems    = {
-                Item("treelove", Count(1,2), false),
+                Item("kratom_leaves", Count(1,3), false),
             }
         },
 
         -- จุดโพรเสซ
         Process = {
-            NPC         = CreateNPC("~n~โพรเสซ ไม้หัวใจ", "mp_m_weed_01", -1922.97,2044.62,140.73,258.73),
-            Blip        = CreateBlip("⌛❤️ โพรเสซ ไม้หัวใจ",389,0, 1.0),
+            NPC         = CreateNPC("~n~แปรรูป ใบกระท่อม", "mp_m_weed_01", 2506.64,4799.1,34.65,237.69),
+            Blip        = CreateBlip("แปรรูป ใบกระท่อม", 383,0, 1.0),
             
-            Duration    = Second(5),
+            Duration    = Second(3),
             Animation   = Animation("rcmbarry", "bar_1_attack_idle_aln"),
             Sound       = Sound("", 0.1),
 
             AutoProcess = true,
             RemoveItems = {
-                Item("treelove", Count(2), false),
+                Item("kratom_leaves", Count(1), false),
             },
+
+            
             GetItems    = {
-                Item("treelove_a", Count(1,1), false),
+                Item("hut_water", Count(1,2), false),
+                Item("hut_waste", Count(1,2), 30),
             }
         }
     }
 },
---------------------------------------------------------------------------------------------------------------------------------------------------------
-["mushroom"] = {
+------------------------------------------------------------------------------------------------------------------------------------------------
+["scrap"] = {
     Mode = 1,
     ModeSetting = {
         -- จุดกดเริ่มงาน
         Start = {
-            NPC         = CreateNPC("~n~[🍄 เก็บเห็ด 🍄]", "s_m_m_strvend_01", -2583.14, 2464.14, 2.97, 10.87),
-            Blip        = CreateBlip("🍄 เก็บเห็ด", 386, 0, 1.0),
+            NPC         = CreateNPC("~n~[เศษเหล็ก]", "s_m_m_strvend_01",2383.38,3117.39,48.2,65.48),
+            Blip        = CreateBlip("เศษเหล็ก", 383,0, 1.0),
             Sound       = Sound("hello", 0.1),
         },
 
         -- จุดงาน
         Pickup = {
-            Text        = "🍄 เก็บเห็ด 🍄",
-            TimeOut     = Minute(4),
-            Prop        = Model("mushroomjob", false),
-            PropSetting = { MaxSpawn = 5,  Width = 17, Movement = false,  Delay = Second(3) },
-            Position    = vector3(-2579.46,2489.31,1.19),
+            Text        = "แยกชิ้นส่วนเหล็ก",
+            TimeOut     = Minute(15),
+            Prop        = Model("rca_scrap_001", false),
+            PropSetting = { MaxSpawn = 10,  Width = 15, Movement = false,  Delay = Second(3) },
+            Position    = vector3(2402.97,3106.44,48.27),
             
-            Duration    = Second(4),
-            Animation   = Animation("anim@amb@clubhouse@tutorial@bkr_tut_ig3@", "machinic_loop_mechandplayer"),
+            Duration    = Second(2),
+            --Animation   = Animation("mining@stornbot@head_000_r", "head_000_r"),
+            Animation   = Animation("WORLD_HUMAN_CONST_DRILL"),
             Sound       = Sound("", 0.1),
-            UserItem    = "water", --จะมีผลก็ต่อเมือ ปรับ Config.Item = true  เท่านั้น
+            Moneytex    = 10,   --Config.MoneyTaxPay ปรับ = true ถึงทำงาน
             GetItems    = {
-                Item("mushroom", Count(1,2), false),
+                Item("scrap", Count(1,3), false),
             }
         },
 
         -- จุดโพรเสซ
         Process = {
-            NPC         = CreateNPC("~n~ 🍄โพรเสซ เห็ด 🍄", "mp_m_weed_01", -1923.94,2040.62,140.73,258.73),
-            Blip        = CreateBlip("⌛🍄 โพรเสซ เห็ด ", 386, 0, 1.0),
+            NPC         = CreateNPC("~n~แลกเศษเหล็ก", "mp_m_weed_01", 2362.86,3124.74,48.22,259.18),
+            Blip        = CreateBlip("แลกชิ้นส่วนเศษเหล็ก", 383,0, 1.0),
             
-            Duration    = Second(5),
+            Duration    = Second(3),
             Animation   = Animation("rcmbarry", "bar_1_attack_idle_aln"),
             Sound       = Sound("", 0.1),
 
             AutoProcess = true,
             RemoveItems = {
-                Item("mushroom", Count(2), false),
+                Item("scrap", Count(1), false),
             },
+
+            
             GetItems    = {
-                Item("mushroom_pack", Count(1,1), false),
+                Item("iron_ingot", Count(1), false),
             }
         }
     }
 },
---------------------------------------------------------------------------------------------------------------------------------------------------------
-["Chiba"] = {
+------------------------------------------------------------------------------------------------------------------------------------------------
+["mango"] = {
     Mode = 1,
     ModeSetting = {
         -- จุดกดเริ่มงาน
         Start = {
-            NPC         = CreateNPC("~n~[🐶 ให้อาหารสุนัข 🐶]", "s_m_m_strvend_01", 1440.48,1111.65,114.23,89.08),
-            Blip        = CreateBlip("🐶 ให้อาหารสุนัข", 381, 0, 1.0),
+            NPC         = CreateNPC("~n~[เก็บมะม่วง]", "s_m_m_strvend_01",2820.55,4695.24,46.4,186.37),
+            Blip        = CreateBlip("เก็บมะม่วง", 383,0, 1.0),
             Sound       = Sound("hello", 0.1),
         },
 
         -- จุดงาน
         Pickup = {
-            Text        = "🐶 ให้อาหารสุนัข 🐶",
-            TimeOut     = Minute(4),
-            Prop        = Model("legend_3", false),
-            PropSetting = { MaxSpawn = 5,  Width = 10, Movement = false,  Delay = Second(3) },
-            Position    = vector3(1461.34,1112.72,114.33),
+            Text        = "เก็บมะม่วง",
+            TimeOut     = Minute(15),
+            Prop        = Model("rca_mango_001", false),
+            PropSetting = { MaxSpawn = 10,  Width = 15, Movement = false,  Delay = Second(3) },
+            Position    = vector3(2819.77,4728,46.73),
             
-            Duration    = Second(4),
-            Animation   = Animation("anim@amb@clubhouse@tutorial@bkr_tut_ig3@", "machinic_loop_mechandplayer"),
-            Sound       = Sound("dog", 0.1),
-            UserItem    = "water", --จะมีผลก็ต่อเมือ ปรับ Config.Item = true  เท่านั้น
+            Duration    = Second(2),
+            --Animation   = Animation("mining@stornbot@head_000_r", "head_000_r"),
+            Animation   = Animation("WORLD_HUMAN_CONST_DRILL"),
+            Sound       = Sound("", 0.1),
+            Moneytex    = 10,   --Config.MoneyTaxPay ปรับ = true ถึงทำงาน
             GetItems    = {
-                Item("dog", Count(1,2), false),
+                Item("mango", Count(1,3), false),
+            }
+        },
+
+        -- -- จุดโพรเสซ
+        -- Process = {
+        --     NPC         = CreateNPC("~n~ส่งมะม่วง", "mp_m_weed_01", 2772.05,4744.22,45.81,279.33),
+        --     Blip        = CreateBlip("ส่งมะม่วง", 383,0, 1.0),
+            
+        --     Duration    = Second(3),
+        --     Animation   = Animation("rcmbarry", "bar_1_attack_idle_aln"),
+        --     Sound       = Sound("", 0.1),
+
+        --     AutoProcess = true,
+        --     RemoveItems = {
+        --         Item("mango", Count(1), false),
+        --     },
+
+            
+        --     GetItems    = {
+        --         Item("iron_ingot", Count(1), false),
+        --     }
+        -- }
+    }
+},
+------------------------------------------------------------------------------------------------------------------------------------------------
+["garbage"] = {
+    Mode = 1,
+    ModeSetting = {
+        -- จุดกดเริ่มงาน
+        Start = {
+            NPC         = CreateNPC("~n~[เก็บขยะ]", "s_m_m_strvend_01",1465.59,6367.59,23.71,266.18),
+            Blip        = CreateBlip("เก็บขยะ", 383,0, 1.0),
+            Sound       = Sound("hello", 0.1),
+        },
+
+        -- จุดงาน
+        Pickup = {
+            Text        = "เก็บขยะ",
+            TimeOut     = Minute(15),
+            Prop        = Model("rca_dustin_001", false),
+            PropSetting = { MaxSpawn = 10,  Width = 15, Movement = false,  Delay = Second(3) },
+            Position    = vector3(1463.43,6354.21,23.83),
+            
+            Duration    = Second(2),
+            --Animation   = Animation("mining@stornbot@head_000_r", "head_000_r"),
+            Animation   = Animation("WORLD_HUMAN_CONST_DRILL"),
+            Sound       = Sound("", 0.1),
+            Moneytex    = 10,   --Config.MoneyTaxPay ปรับ = true ถึงทำงาน
+            GetItems    = {
+                Item("garbage_bag", Count(1,3), false),
             }
         },
 
         -- จุดโพรเสซ
         Process = {
-            NPC         = CreateNPC("~n~🐶 โพรเสซ สุนัข 🐶", "mp_m_weed_01", -1909.03,2072.12,140.39,138.56),
-            Blip        = CreateBlip("⌛🐶 โพรเสซ สุนัข", 381, 0, 1.0),
+            NPC         = CreateNPC("~n~ส่งขายขยะ", "mp_m_weed_01", 1508.45,6327.29,24.03,64.08),
+            Blip        = CreateBlip("ส่งขายขยะ", 383,0, 1.0),
             
-            Duration    = Second(5),
+            Duration    = Second(3),
             Animation   = Animation("rcmbarry", "bar_1_attack_idle_aln"),
             Sound       = Sound("", 0.1),
 
             AutoProcess = true,
             RemoveItems = {
-                Item("dog", Count(2), false),
+                Item("garbage_bag", Count(1), false),
             },
+
+            
             GetItems    = {
-                Item("dog_b", Count(1,1), false),
+                Item("paper_crate", Count(1), false),
+                Item("plastic_bottle", Count(1), 10),
+                Item("glass_bottle", Count(1), 10),
             }
         }
     }
 },
---------------------------------------------------------------------------------------------------------------------------------------------------------
-["cow"] = {
+------------------------------------------------------------------------------------------------------------------------------------------------
+["rubber"] = {
     Mode = 1,
     ModeSetting = {
         -- จุดกดเริ่มงาน
         Start = {
-            NPC         = CreateNPC("~n~[🐄 นมวัว 🐄]", "s_m_m_strvend_01", 2383.71,5031.48,45.9,314.19),
-            Blip        = CreateBlip("🐄 นมวัว", 382, 0, 1.5),
+            NPC         = CreateNPC("~n~[ตกหมึก]", "s_m_m_strvend_01",2145.7,3910.11,31.07,168.44),
+            Blip        = CreateBlip("ตกหมึก", 383,0, 1.0),
             Sound       = Sound("hello", 0.1),
         },
 
         -- จุดงาน
         Pickup = {
-            Text        = "🐄 นมวัว 🐄",
-            TimeOut     = Minute(4),
-            Prop        = Model("cow_2", false),
-            PropSetting = { MaxSpawn = 5,  Width = 6, Movement = false,  Delay = Second(3) },
-            Position    = vector3(2379.19,5055.02,46.44),
+            Text        = "ตกหมึก",
+            TimeOut     = Minute(15),
+            Prop        = Model("rca_squid_001", false),
+            PropSetting = { MaxSpawn = 10,  Width = 15, Movement = false,  Delay = Second(3) },
+            Position    = vector3(2147.72,3918.52,30.19),
             
-            Duration    = Second(4),
-            Animation   = Animation("anim@amb@clubhouse@tutorial@bkr_tut_ig3@", "machinic_loop_mechandplayer"),
-            Sound       = Sound("cow", 0.1),
-            UserItem    = "water", --จะมีผลก็ต่อเมือ ปรับ Config.Item = true  เท่านั้น
+            Duration    = Second(2),
+            --Animation   = Animation("mining@stornbot@head_000_r", "head_000_r"),
+            Animation   = Animation("WORLD_HUMAN_CONST_DRILL"),
+            Sound       = Sound("", 0.1),
+            Moneytex    = 10,   --Config.MoneyTaxPay ปรับ = true ถึงทำงาน
             GetItems    = {
-                Item("cow", Count(1,2), false),
+                Item("squid", Count(1,3), false),
             }
         },
 
         -- จุดโพรเสซ
         Process = {
-            NPC         = CreateNPC("~n~🐄 นมวัว 🐄", "mp_m_weed_01", -1911.74,2073.91,140.39,139.4),
-            Blip        = CreateBlip("⌛🐄 โพรเสซ นมวัว", 382, 0, 1.5),
+            NPC         = CreateNPC("~n~ส่งหมึก", "mp_m_weed_01", 1955.54,3843.88,32.02,298.42),
+            Blip        = CreateBlip("ส่งหมึก", 383,0, 1.0),
             
-            Duration    = Second(5),
+            Duration    = Second(3),
             Animation   = Animation("rcmbarry", "bar_1_attack_idle_aln"),
             Sound       = Sound("", 0.1),
 
             AutoProcess = true,
             RemoveItems = {
-                Item("cow", Count(2), false),
+                Item("squid", Count(1), false),
             },
+
+            
             GetItems    = {
-                Item("cow_a", Count(1,1), false),
+                Item("squid_ink", Count(1), false),
             }
         }
     }
 },
---------------------------------------------------------------------------------------------------------------------------------------------------------
-["durian"] = {
-    Mode = 1,
+------------------------------------------------------------------------------------------------------------------------------------------------
+["Devil_Coin"] = {
+    Mode = 2,
     ModeSetting = {
-        -- จุดกดเริ่มงาน
+         -- จุดกดเริ่มงาน
         Start = {
-            NPC         = CreateNPC("~n~[ทุเรียน]", "s_m_m_strvend_01", 2818.82,4701.19,46.36,185.12),
-            Blip        = CreateBlip("ทุเรียน", 388, 0, 1.0),
-            Sound       = Sound("hello", 0.1),
+            NPC = CreateNPC("Hunter", "a_m_y_beach_03", 304.91, 2633.23,44.42,99.26),
+            Blip = CreateBlip("Devil Coin", 535, 2, 1.0),
+            MoneyTex    = 10,
         },
 
         -- จุดงาน
         Pickup = {
-            Text        = "ทุเรียน",
-            TimeOut     = Minute(4),
-            Prop        = Model("wk_durian", false),
-            PropSetting = { MaxSpawn = 6,  Width = 17, Movement = false,  Delay = Second(3) },
-            Position    = vector3(2816.66,4724.71,46.6),
-            
-            Duration    = Second(4),
-            Animation   = Animation("anim@amb@clubhouse@tutorial@bkr_tut_ig3@", "machinic_loop_mechandplayer"),
-            Sound       = Sound("MagicWand", 0.1),
-            UserItem    = "water", --จะมีผลก็ต่อเมือ ปรับ Config.Item = true  เท่านั้น
-            GetItems    = {
-                Item("durian", Count(1,2), false),
-            }
-        },
-
-        -- จุดโพรเสซ
-        Process = {
-            NPC         = CreateNPC("~n~ ทุเรียน ", "mp_m_weed_01", -1924.81,2036.44,140.73,253.73),
-            Blip        = CreateBlip("⌛ โพรเสซ ทุเรียน", 388, 0, 1.0),
-            
+            Text        = "รับเควส",
+            TimeOut     = Minute(1),
+            Prop        = Model(`proplootbox`, false),
+            Blip        = CreateBlip("Devil Box", 535, 2, 1.0),
+            Position    = {
+                vector3(900.74,2697.46,40.86),
+                -- vector3(-390.6, -726.37, 36.09),
+                -- vector3(-431.56, -651.9, 37.26)
+            },
             Duration    = Second(5),
-            Animation   = Animation("rcmbarry", "bar_1_attack_idle_aln"),
-            Sound       = Sound("", 0.1),
-
-            AutoProcess = true,
-            RemoveItems = {
-                Item("durian", Count(2), false),
-            },
-            GetItems    = {
-                Item("durian_a", Count(1,1), false),
-            }
-        }
-    }
-},
---------------------------------------------------------------------------------------------------------------------------------------------------------
-["bee"] = {
-    Mode = 1,
-    ModeSetting = {
-        -- จุดกดเริ่มงาน
-        Start = {
-            NPC         = CreateNPC("~n~[🐝 เก็บรังผึง 🐝]", "s_m_m_strvend_01", -649.59,5468.93,53.99,36.89),
-            Blip        = CreateBlip("🐝 เก็บรังผึง", 400, 0, 1.5),
-            Sound       = Sound("hello", 0.1),
-        },
-
-        -- จุดงาน
-        Pickup = {
-            Text        = "🐝 เก็บรังผึง 🐝",
-            TimeOut     = Minute(4),
-            Prop        = Model("wk_honey", false),
-            PropSetting = { MaxSpawn = 6,  Width = 17, Movement = false,  Delay = Second(3) },
-            Position    = vector3(-655.69,5478.5,51.61),
-            
-            Duration    = Second(4),
             Animation   = Animation("anim@amb@clubhouse@tutorial@bkr_tut_ig3@", "machinic_loop_mechandplayer"),
-            Sound       = Sound("", 0.1),
-            UserItem    = "water", --จะมีผลก็ต่อเมือ ปรับ Config.Item = true  เท่านั้น
+            Sound       = Sound("Nope", 0.1),
+            Moneytex    = 10, --Config.MoneyTaxPay ปรับ = true ถึงทำงาน
             GetItems    = {
-                Item("bee", Count(1,2), false),
+                -- Item("devil_coin", Count(1), false),
+                Item("devil_coin", Count(1,3), false),
             }
         },
-
-        -- จุดโพรเสซ
-        Process = {
-            NPC         = CreateNPC("~n~🐝 เก็บรังผึง 🐝", "mp_m_weed_01", -1920.31,2056.92,140.74,252.8),
-            Blip        = CreateBlip("⌛🐝 โพรเสซ เก็บรังผึง", 400, 0, 1.5),
-            
-            Duration    = Second(5),
-            Animation   = Animation("rcmbarry", "bar_1_attack_idle_aln"),
-            Sound       = Sound("", 0.1),
-
-            AutoProcess = true,
-            RemoveItems = {
-                Item("bee", Count(2), false),
-            },
-            GetItems    = {
-                Item("bee_a", Count(1,1), false),
-            }
-        }
     }
 },
---------------------------------------------------------------------------------------------------------------------------------------------------------
-["Robot"] = {
-    Mode = 1,
-    ModeSetting = {
-        -- จุดกดเริ่มงาน
-        Start = {
-            NPC         = CreateNPC("~n~[🤖 แยกชิ้นส่วน 🤖]", "s_m_m_strvend_01", 2436.47,3110.79,48.25,271.13),
-            Blip        = CreateBlip("🤖 แยกชิ้นส่วน", 20, 0, 1.5),
-            Sound       = Sound("hello", 0.1),
-        },
 
-        -- จุดงาน
-        Pickup = {
-            Text        = "🤖 แยกชิ้นส่วน 🤖",
-            TimeOut     = Minute(4),
-            Prop        = Model("boot3", false),
-            PropSetting = { MaxSpawn = 6,  Width = 20, Movement = false,  Delay = Second(3) },
-            Position    = vector3(2399.82,3091.79,48.15),
-            
-            Duration    = Second(4),
-            Animation   = Animation("anim@amb@clubhouse@tutorial@bkr_tut_ig3@", "machinic_loop_mechandplayer"),
-            Sound       = Sound("", 0.1),
-            UserItem    = "water", --จะมีผลก็ต่อเมือ ปรับ Config.Item = true  เท่านั้น
-            GetItems    = {
-                Item("steel", Count(1,2), false),
-                Item("steel_a", Count(1,2), 2),
-            }
-        },
-         -- จุดโพรเสซ
-                Process = {
-                    NPC         = CreateNPC("~n~ 🤖 แยกชิ้นส่วน 🤖 ", "mp_m_weed_01", -1904.16,2068.34,140.84,134.63),
-                    Blip        = CreateBlip("⌛🤖 โพรเสซ แยกชิ้นส่วน", 400, 0, 1.5),
-                    
-                    Duration    = Second(5),
-                    Animation   = Animation("rcmbarry", "bar_1_attack_idle_aln"),
-                    Sound       = Sound("", 0.1),
-        
-                    AutoProcess = true,
-                    RemoveItems = {
-                        Item("steel", Count(2), false),
-                    },
-                    GetItems    = {
-                        Item("steel_x", Count(1,1), false),
-                    }
-                }
-    }
-},
---------------------------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------------------------
 --[[    ["shell_a"] = {
         Mode = 2,

@@ -31,4 +31,5 @@ isDead = false
 
 IsCombatCheck = false
 
-verifycheck = false
+EnableTex_1 = nil
+EnableTex_2 = nil

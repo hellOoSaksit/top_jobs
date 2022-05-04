@@ -20,16 +20,8 @@ end)
 AddEventHandler('playerDropped', function (reason)
 end)
 
-RegisterServerEvent('top_jobs:useitemEnable')
-AddEventHandler('top_jobs:useitemEnable', function(data)
-    ESX.RegisterUsableItem(data, function(source)
-        local xPlayer = ESX.GetPlayerFromId(source)
-
-    end)
-end)
-
-RegisterServerEvent('top_jobs:processItems')
-AddEventHandler('top_jobs:processItems', function(data, data2, auto)
+RegisterServerEvent('uilt_jobs:processItems')
+AddEventHandler('uilt_jobs:processItems', function(data, data2, auto)
     local xPlayer = ESX.GetPlayerFromId(source)
     local removeList = data
     local itemList = CreateRandomItems(data2)
@@ -52,25 +44,66 @@ AddEventHandler('top_jobs:processItems', function(data, data2, auto)
         local count = math.random(itemList[i].ItemCount[1], itemList[i].ItemCount[2])
 
         local xItem = xPlayer.getInventoryItem(name)
-        if Config.ESXOLD then
-            if xItem.limit ~= 0 then
-                if xItem.count < xItem.limit then
-                    if (xItem.count + count) <= xItem.limit then
-                        itemList[i].ItemCount = count
-                    else
-                        itemList[i].ItemCount = xItem.limit
-                    end
-                else
-                    Notify.Server(Config.Text['bag_full']:format(xItem.label), 'error', xPlayer.source)
-                    return
-                end
-            else
-                if xPlayer.canCarryItem(name, count) then
+        if Config.ESXOld then 
+        if xItem.limit ~= 0 then
+            if xItem.count < xItem.limit then
+                if (xItem.count + count) <= xItem.limit then
                     itemList[i].ItemCount = count
                 else
-                    Notify.Server(Config.Text['bag_full']:format(xItem.label), 'error', xPlayer.source)
+                    itemList[i].ItemCount = xItem.limit
                 end
+            else
+                Notify.Server(Config.Text['bag_full']:format(xItem.label), 'error', xPlayer.source)
+                return
             end
+        else
+
+                            --------------------------------------------------------------------------------------------
+                            --กระเป๋า NC แก้ไข
+                            local limit = exports.nc_inventory:GetItemLimit(name) --NC
+                            local weight = exports.nc_inventory:GetItemWeight(name) -- น้ำหนักไอเทม
+                            local _weight, _maxWeight = exports.nc_inventory:GetInventoryWeight(xPlayer.source)
+                            local limit_check = nil
+                            local _weightitem = 0
+                            if limit == -1 then
+                                limit_check = true
+                                _weightitem = _weight + weight
+                                print(_weightitem ,weight ,_maxWeight ,_weight)
+                            else
+                                limit_check = false
+                            end
+                            --------------------------------------------------------------------------------------------
+                            if limit_check then
+                                if limit_check and _weightitem <= _maxWeight  then
+                                    if xPlayer.canCarryItem(name, count) then
+                                        xPlayer.addInventoryItem(name, count)
+                                        exports.nc_discordlogs:Discord({
+                                            webhook = '|Bot_uilt_jobs_additem|',			-- ใส่ชื่อ webhook ที่ต้องการใน Config.Webhooks
+                                            xPlayer = xPlayer,					-- ในฝั่ง Server ต้องใส่ xPlayer ทุกครั้ง (ตัวอย่างการประกาศค่า xPlayer: local xPlayer = ESX.GetPlayerFromId(playerId))
+                                            title = 'ได้รับไอเทม',					-- หัวเรื่องที่ต้องการแสดงใน discord
+                                            message = 'ผู้เล่น'	.. xPlayer.name .. ' ได้รับ ' .. xItem.label .. ' จำนวน ' .. ESX.Math.GroupDigits(count) .. ' เข้าตัว',				-- message คือ title ที่จะนำหน้าด้วยชื่อผู้เล่น (หากใช้งาน title และ message พร้อมกัน จะแสดงค่าเป็น title แทน)
+                                            public = false,			-- แสดง Log สาธารณะ (true: ไม่แสดงข้อมูลผู้เล่น | false|nil: แสดงข้อมูลผู้เล่น) | Default: nil
+                                        })
+                                    end
+                                else
+                                    Notify.Server(Config.Text['bag_full']:format(xItem.label), 'error', xPlayer.source)
+                                end
+                            --------------------------------------------------------------------------------------------
+                            elseif xItem.count <= limit then -- NC
+                                xPlayer.addInventoryItem(name, count)
+                                exports.nc_discordlogs:Discord({
+                                    webhook = '|Bot_uilt_jobs_additem|',			-- ใส่ชื่อ webhook ที่ต้องการใน Config.Webhooks
+                                    xPlayer = xPlayer,					-- ในฝั่ง Server ต้องใส่ xPlayer ทุกครั้ง (ตัวอย่างการประกาศค่า xPlayer: local xPlayer = ESX.GetPlayerFromId(playerId))
+                                    title = 'ได้รับไอเทม',					-- หัวเรื่องที่ต้องการแสดงใน discord
+                                    message = 'ผู้เล่น'	.. xPlayer.name .. ' ได้รับ ' .. xItem.label .. ' จำนวน ' .. ESX.Math.GroupDigits(count) .. ' เข้าตัว',				-- message คือ title ที่จะนำหน้าด้วยชื่อผู้เล่น (หากใช้งาน title และ message พร้อมกัน จะแสดงค่าเป็น title แทน)
+                                    public = false,			-- แสดง Log สาธารณะ (true: ไม่แสดงข้อมูลผู้เล่น | false|nil: แสดงข้อมูลผู้เล่น) | Default: nil
+                                })
+                            else
+                                Notify.Server(Config.Text['bag_full']:format(xItem.label), 'error', xPlayer.source)
+                            end
+                            --------------------------------------------------------------------------------------------
+        end
+
         else
             itemList[i].ItemCount = count
         end
@@ -89,7 +122,7 @@ AddEventHandler('top_jobs:processItems', function(data, data2, auto)
 
         local xItem = xPlayer.getInventoryItem(name)
 
-        if Config.ESXOLD then
+        if Config.ESXOld then
             if xItem.limit ~= 0 then
                 if xItem.count < xItem.limit then
                     if (xItem.count + count) <= xItem.limit then
@@ -108,35 +141,62 @@ AddEventHandler('top_jobs:processItems', function(data, data2, auto)
                 -- ChechRareItem(xPlayer.source,xItem.name)
             end
         else
-            if xPlayer.canCarryItem(name, count) then
-                xPlayer.addInventoryItem(name, count)
-                ChechRareItem(xPlayer.source, xItem.name)
-            else
-                Notify.Server(Config.Text['bag_full']:format(xItem.label), 'error', xPlayer.source)
-            end
+                 --------------------------------------------------------------------------------------------
+                            --กระเป๋า NC แก้ไข
+                            local limit = exports.nc_inventory:GetItemLimit(name) --NC
+                            local weight = exports.nc_inventory:GetItemWeight(name) -- น้ำหนักไอเทม
+                            local _weight, _maxWeight = exports.nc_inventory:GetInventoryWeight(xPlayer.source)
+                            local limit_check = nil
+                            local _weightitem = 0
+                            if limit == -1 then
+                                limit_check = true
+                                _weightitem = _weight + weight
+                                print(_weightitem ,weight ,_maxWeight ,_weight)
+                            else
+                                limit_check = false
+                            end
+                            --------------------------------------------------------------------------------------------
+                            if limit_check then
+                                if limit_check and _weightitem <= _maxWeight  then
+                                    if xPlayer.canCarryItem(name, count) then
+                                        xPlayer.addInventoryItem(name, count)
+                                        exports.nc_discordlogs:Discord({
+                                            webhook = '|Bot_uilt_jobs_additem|',			-- ใส่ชื่อ webhook ที่ต้องการใน Config.Webhooks
+                                            xPlayer = xPlayer,					-- ในฝั่ง Server ต้องใส่ xPlayer ทุกครั้ง (ตัวอย่างการประกาศค่า xPlayer: local xPlayer = ESX.GetPlayerFromId(playerId))
+                                            title = 'ได้รับไอเทม',					-- หัวเรื่องที่ต้องการแสดงใน discord
+                                            message = 'ผู้เล่น'	.. xPlayer.name .. ' ได้รับ ' .. xItem.label .. ' จำนวน ' .. ESX.Math.GroupDigits(count) .. ' เข้าตัว',				-- message คือ title ที่จะนำหน้าด้วยชื่อผู้เล่น (หากใช้งาน title และ message พร้อมกัน จะแสดงค่าเป็น title แทน)
+                                            public = false,			-- แสดง Log สาธารณะ (true: ไม่แสดงข้อมูลผู้เล่น | false|nil: แสดงข้อมูลผู้เล่น) | Default: nil
+                                        })
+                                    end
+                                else
+                                    Notify.Server(Config.Text['bag_full']:format(xItem.label), 'error', xPlayer.source)
+                                    auto = false
+                                end
+                            --------------------------------------------------------------------------------------------
+                            elseif xItem.count <= limit then -- NC
+                                xPlayer.addInventoryItem(name, count)
+                                exports.nc_discordlogs:Discord({
+                                    webhook = '|Bot_uilt_jobs_additem|',			-- ใส่ชื่อ webhook ที่ต้องการใน Config.Webhooks
+                                    xPlayer = xPlayer,					-- ในฝั่ง Server ต้องใส่ xPlayer ทุกครั้ง (ตัวอย่างการประกาศค่า xPlayer: local xPlayer = ESX.GetPlayerFromId(playerId))
+                                    title = 'ได้รับไอเทม',					-- หัวเรื่องที่ต้องการแสดงใน discord
+                                    message = 'ผู้เล่น'	.. xPlayer.name .. ' ได้รับ ' .. xItem.label .. ' จำนวน ' .. ESX.Math.GroupDigits(count) .. ' เข้าตัว',				-- message คือ title ที่จะนำหน้าด้วยชื่อผู้เล่น (หากใช้งาน title และ message พร้อมกัน จะแสดงค่าเป็น title แทน)
+                                    public = false,			-- แสดง Log สาธารณะ (true: ไม่แสดงข้อมูลผู้เล่น | false|nil: แสดงข้อมูลผู้เล่น) | Default: nil
+                                })
+                            else
+                                Notify.Server(Config.Text['bag_full']:format(xItem.label), 'error', xPlayer.source)
+                                auto = false
+                            end
+                            --------------------------------------------------------------------------------------------
         end
-
     end
 
     if auto then
-        TriggerClientEvent('top_jobs:TaskProcess', xPlayer.source, true)
+        TriggerClientEvent('uilt_jobs:TaskProcess', xPlayer.source, true)
     end
 end)
 
-RegisterServerEvent('top_jobs:checkitem')
-AddEventHandler('top_jobs:checkitem', function(data)
-    local xPlayer = ESX.GetPlayerFromId(source)
-    if xPlayer.getInventoryItem(data).count >= 1 then
-        TriggerClientEvent('top_jobs:Returncheckitem', source, true)
-       -- print("HI")
-    else
-        TriggerClientEvent('top_jobs:Returncheckitem', source, false)
-       -- print("BAD")
-    end
-end)
-
-RegisterServerEvent('top_jobs:addItems')
-AddEventHandler('top_jobs:addItems', function(data)
+RegisterServerEvent('uilt_jobs:addItems')
+AddEventHandler('uilt_jobs:addItems', function(data)
     local xPlayer = ESX.GetPlayerFromId(source)
     local itemList = CreateRandomItems(data)
 
@@ -146,7 +206,8 @@ AddEventHandler('top_jobs:addItems', function(data)
         local count = math.random(itemList[i].ItemCount[1], itemList[i].ItemCount[2])
 
         local xItem = xPlayer.getInventoryItem(name)
-        if Config.ESXOLD then
+
+        if Config.ESXOld then
             if xItem.limit ~= 0 then
                 if xItem.count < xItem.limit then
                     if (xItem.count + count) <= xItem.limit then
@@ -163,11 +224,51 @@ AddEventHandler('top_jobs:addItems', function(data)
             end
         else
                 --xPlayer.addInventoryItem(name, count)
-                if xPlayer.canCarryItem(name, count) then
-                    xPlayer.addInventoryItem(name, count)
-                else
-                    Notify.Server(Config.Text['bag_full']:format(xItem.label), 'error', xPlayer.source)
-                end
+                 --------------------------------------------------------------------------------------------
+                            --กระเป๋า NC แก้ไข
+                            local limit = exports.nc_inventory:GetItemLimit(name) --NC
+                            local weight = exports.nc_inventory:GetItemWeight(name) -- น้ำหนักไอเทม
+                            local _weight, _maxWeight = exports.nc_inventory:GetInventoryWeight(xPlayer.source)
+                            local limit_check = nil
+                            local _weightitem = 0
+                            if limit == -1 then
+                                limit_check = true
+                                _weightitem = _weight + weight
+                                print(_weightitem ,weight ,_maxWeight ,_weight)
+                            else
+                                limit_check = false
+                            end
+                            --------------------------------------------------------------------------------------------
+                            if limit_check then
+                                if limit_check and _weightitem <= _maxWeight  then
+                                    if xPlayer.canCarryItem(name, count) then
+                                        xPlayer.addInventoryItem(name, count)
+                                        exports.nc_discordlogs:Discord({
+                                            webhook = '|Bot_uilt_jobs_additem|',			-- ใส่ชื่อ webhook ที่ต้องการใน Config.Webhooks
+                                            xPlayer = xPlayer,					-- ในฝั่ง Server ต้องใส่ xPlayer ทุกครั้ง (ตัวอย่างการประกาศค่า xPlayer: local xPlayer = ESX.GetPlayerFromId(playerId))
+                                            title = 'ได้รับไอเทม',					-- หัวเรื่องที่ต้องการแสดงใน discord
+                                            message = 'ผู้เล่น'	.. xPlayer.name .. ' ได้รับ ' .. xItem.label .. ' จำนวน ' .. ESX.Math.GroupDigits(count) .. ' เข้าตัว',				-- message คือ title ที่จะนำหน้าด้วยชื่อผู้เล่น (หากใช้งาน title และ message พร้อมกัน จะแสดงค่าเป็น title แทน)
+                                            public = false,			-- แสดง Log สาธารณะ (true: ไม่แสดงข้อมูลผู้เล่น | false|nil: แสดงข้อมูลผู้เล่น) | Default: nil
+                                        })
+                                    end
+                                else
+                                    Notify.Server(Config.Text['bag_full']:format(xItem.label), 'error', xPlayer.source)
+                                    auto = false
+                                end
+                            --------------------------------------------------------------------------------------------
+                            elseif xItem.count <= limit then -- NC
+                                    xPlayer.addInventoryItem(name, count)
+                                    exports.nc_discordlogs:Discord({
+                                        webhook = '|Bot_uilt_jobs_additem|',			-- ใส่ชื่อ webhook ที่ต้องการใน Config.Webhooks
+                                        xPlayer = xPlayer,					-- ในฝั่ง Server ต้องใส่ xPlayer ทุกครั้ง (ตัวอย่างการประกาศค่า xPlayer: local xPlayer = ESX.GetPlayerFromId(playerId))
+                                        title = 'ได้รับไอเทม',					-- หัวเรื่องที่ต้องการแสดงใน discord
+                                        message = 'ผู้เล่น'	.. xPlayer.name .. ' ได้รับ ' .. xItem.label .. ' จำนวน ' .. ESX.Math.GroupDigits(count) .. ' เข้าตัว',				-- message คือ title ที่จะนำหน้าด้วยชื่อผู้เล่น (หากใช้งาน title และ message พร้อมกัน จะแสดงค่าเป็น title แทน)
+                                        public = false,			-- แสดง Log สาธารณะ (true: ไม่แสดงข้อมูลผู้เล่น | false|nil: แสดงข้อมูลผู้เล่น) | Default: nil
+                                    })
+                            else
+                                Notify.Server(Config.Text['bag_full']:format(xItem.label), 'error', xPlayer.source)
+                            end
+                            --------------------------------------------------------------------------------------------
         end
     end
 end)
@@ -183,7 +284,7 @@ ChechRareItem = function(playerId, name)
     end
 
     if rare then
-        TriggerClientEvent('top_jobs:TaskRareAnimation', playerId, name)
+        TriggerClientEvent('uilt_jobs:TaskRareAnimation', playerId, name)
     end
 end
 
@@ -230,3 +331,57 @@ CreateRandomItems = function(list)
   
       return getItems
   end
+
+
+
+
+RegisterServerEvent('uilt_jobs:MoneyPayTaskFristMone')
+AddEventHandler('uilt_jobs:MoneyPayTaskFristMone', function(data)
+      local _Tex = data
+      local xPlayer = ESX.GetPlayerFromId(source)
+      local _bank = xPlayer.getAccount('bank').money
+              if xPlayer.getMoney() >= _Tex then
+                    TriggerClientEvent("TaskFristMode:Check", source , true)
+                  xPlayer.removeAccountMoney('money', _Tex) 
+              elseif _bank >= _Tex then
+                    TriggerClientEvent("TaskFristMode:Check", source , true)
+                  xPlayer.removeAccountMoney('bank', _Tex)  
+              else
+                exports.mongodb:insertOne({ collection="billing", 
+				document = { 
+					identifier		= xPlayer.identifier,
+					sender			= 'City',
+					target_type		= 'player',
+					target			= xPlayer.identifier,
+					label			= 'ใบภาษีเช่าที่ทำงาน',
+					amount			= _Tex,
+					jobs			= 'ไม่มี',
+					-- time			= os.date("วัน:%d เดือน:%m ปี:%Y เวลา(%H น. %M นาที่)")
+                    time			= os.date("%d/%m/%Y(%H | %M )")
+				} }, function (success, result)
+					if not success then
+						print("[mongodb][Example] Error in insertOne: "..tostring(result))
+						return
+					end 
+				end)
+            TriggerClientEvent("TaskFristMode:Check", source , true)
+        end
+end)
+
+RegisterServerEvent('uilt_jobs:MoneyPayTaskSecondeMone')
+AddEventHandler('uilt_jobs:MoneyPayTaskSecondeMone', function(data)
+    local _Tex = data
+    local xPlayer = ESX.GetPlayerFromId(source)
+    local _bank = xPlayer.getAccount('bank').money
+            if xPlayer.getMoney() >= _Tex then
+                TriggerClientEvent("TaskSecondMode:Check", source , true)
+                xPlayer.removeAccountMoney('money', _Tex)
+                
+            elseif _bank >= _Tex then
+                TriggerClientEvent("TaskSecondMode:Check", source , true)
+                xPlayer.removeAccountMoney('bank', _Tex)
+                
+            else
+                TriggerClientEvent("TaskSecondMode:Check", source , false)
+            end
+end)

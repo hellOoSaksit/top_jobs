@@ -1,3 +1,5 @@
+
+
 DisplayHelpText = function(str)
   SetTextComponentFormat("STRING")
   AddTextComponentString(str)
@@ -135,28 +137,17 @@ playSound = function(data)
   end
 end
 
-    -- Citizen.CreateThread(function()
-    --     while true do
-    --        print(ModeFirstData)
-    --         if ModeFirstData ~= nil then
-    --             TriggerServerEvent('top_jobs:checkitem', ModeFirstData.UserItems)
-    --             print("CheckItem")
-    --         end
-    --         Citizen.Wait(500)
-    --     end
-    -- end)
-    -- Citizen.Wait(10)
-TaskFirstMode = function(data,itemcheck)
+TaskFirstMode = function(data)
   ModeFirstDataDoing = true
   if ModeFirstData == nil then
     ModeFirstData = {
       Status = "start",
       Text = data.Pickup.Text,
+      MoneyTex = data.Pickup.Moneytex,
       Duration = data.Pickup.Duration,
       Animation = data.Pickup.Animation,
       Sound = data.Pickup.Sound,
       GetItems = data.Pickup.GetItems,
-      UserItems = data.Pickup.UserItem,
       TimeOut = data.Pickup.TimeOut,
       ObjPosition = data.Pickup.Position,
       Prop = data.Pickup.Prop,
@@ -164,6 +155,7 @@ TaskFirstMode = function(data,itemcheck)
       EntityCount = 0,
       Obj = { },
       Ped = { },
+      MoneyTax = data.Pickup.Moneytex,
     }
     ModeFirstData.RemoveObj = function()
       if ModeFirstData.Obj ~= nil then
@@ -182,21 +174,12 @@ TaskFirstMode = function(data,itemcheck)
     end
     
     TaskFirstModeCheckSpawn()
-    if Config.Item then
-      SendNUIMessage({
-        action = "showUIinf",
-        Mode = 1,
-        Name = "เขตงาน "..ModeFirstData.Text..""
-      })
-      print("UI")
-    else
-      SendNUIMessage({
-        action = "showUI",
-        Mode = 1,
-        Name = ModeFirstData.Text,
-        Time = ModeFirstData.TimeOut
-      })
-    end
+    SendNUIMessage({
+      action = "showUI",
+      Mode = 1,
+      Name = ModeFirstData.Text,
+      Time = ModeFirstData.TimeOut
+    })
     TaskFirstModeStart()
   end
 end
@@ -221,7 +204,6 @@ TaskFirstModeCheckSpawn = function()
         local pos = GenerateCoords(ModeFirstData.ObjPosition)
         if ModeFirstData.Prop.IsModel then
           local ModelHash = GetHashKey(ModeFirstData.Prop.Model)
-
           RequestModel(ModelHash)
           while not HasModelLoaded(ModelHash) do Wait(1) end
 
@@ -236,6 +218,14 @@ TaskFirstModeCheckSpawn = function()
             SetEntityInvincible(ped, true)
             FreezeEntityPosition(ped, false)
             TaskWanderStandard(ped, true, true)
+          end
+          
+          local Waepons = ModeFirstData.PropSetting.Waepons
+          local WeaponsAmm = ModeFirstData.PropSetting.Amm
+          if Waepons ~= nil and Waepons then
+            RemoveWeaponFromPed(PlayerPedId(),GetHashKey(ModeFirstData.PropSetting.Waepons))
+            SetPedAmmo(PlayerPedId(), GetHashKey(ModeFirstData.PropSetting.Waepons),0)
+            GiveWeaponToPed(PlayerPedId(), GetHashKey(Waepons), 10, false, true)
           end
 
           local attack = ModeFirstData.PropSetting.Attack
@@ -272,50 +262,40 @@ end
 
 TaskFirstModeStart = function()
   Citizen.CreateThread(function()
-    if Config.Item then
-      local timeout = GetGameTimer() + ModeFirstData.TimeOut
-      while ModeFirstData.Status ~= "timeout" do
-        local time = timeout - GetGameTimer()
-        --local timeformat = TimeFormat(time)
-        if time < -1 then
-          SendNUIMessage({
-            action = "closeUI",
-            Mode = 1,
-          })
-          ModeFirstData.RemoveObj()
-          ModeFirstData.Status = "timeout"
-          ModeFirstData = nil
-          ModeFirstDataDoing = false
-          break
-        end
-        --print(timeformat)
-        Citizen.Wait(1000)
+
+    local timeout = GetGameTimer() + ModeFirstData.TimeOut
+
+    while ModeFirstData.Status ~= "timeout" do
+      local time = timeout - GetGameTimer()
+      --local timeformat = TimeFormat(time)
+      if time < 1 then
+        SendNUIMessage({
+          action = "closeUI",
+          Mode = 1,
+        })
+        if ModeFirstData.PropSetting.Waepons ~= nil then
+          RemoveWeaponFromPed(PlayerPedId(),GetHashKey(ModeFirstData.PropSetting.Waepons))
+          SetPedAmmo(PlayerPedId(), GetHashKey(ModeFirstData.PropSetting.Waepons),0)
       end
-    else
-      local timeout = GetGameTimer() + ModeFirstData.TimeOut
-      while ModeFirstData.Status ~= "timeout" do
-        local time = timeout - GetGameTimer()
-        --local timeformat = TimeFormat(time)
-        if time < 1 then
-          SendNUIMessage({
-            action = "closeUI",
-            Mode = 1,
-          })
-          ModeFirstData.RemoveObj()
-          ModeFirstData.Status = "timeout"
-          ModeFirstData = nil
-          ModeFirstDataDoing = false
-          break
-        end
-        --print(timeformat)
-        Citizen.Wait(1000)
+        ModeFirstData.RemoveObj()
+        ModeFirstData.Status = "timeout"
+        ModeFirstData = nil
+        ModeFirstDataDoing = false
+        break
       end
+      --print(timeformat)
+      Citizen.Wait(1000)
     end
+
     if ModeFirstData ~= nil then
       SendNUIMessage({
         action = "closeUI",
         Mode = 1,
       })
+      if ModeFirstData.PropSetting.Waepons ~= nil then
+        RemoveWeaponFromPed(PlayerPedId(),GetHashKey(ModeFirstData.PropSetting.Waepons))
+        SetPedAmmo(PlayerPedId(), GetHashKey(ModeFirstData.PropSetting.Waepons),0)
+      end
       ModeFirstData.RemoveObj()
       ModeFirstData.Status = "timeout"
       ModeFirstData = nil
@@ -327,7 +307,7 @@ end
 TaskSecondMode = function(data)
   ModeSecondDataDoing = true
   if ModeSecondData == nil then
-    
+    print(EnableTex_2)
     ModeSecondData = {
       Status = "pickup",
       SendingPosition = data.Start.NPC.Position,
@@ -337,41 +317,42 @@ TaskSecondMode = function(data)
       Sound = data.Pickup.Sound,
       GetItems = data.Pickup.GetItems,
       TimeOut = data.Pickup.TimeOut,
+      MoneyTax = data.Pickup.Moneytex,
     }
 
-    math.randomseed(GetGameTimer())
-    ModeSecondData.ObjPosition = data.Pickup.Position[math.random(#data.Pickup.Position)]
-    if data.Pickup.Prop.IsModel then
-      local ModelHash = GetHashKey(data.Pickup.Prop.Model)
+      math.randomseed(GetGameTimer())
+      ModeSecondData.ObjPosition = data.Pickup.Position[math.random(#data.Pickup.Position)]
+      if data.Pickup.Prop.IsModel then
+        local ModelHash = GetHashKey(data.Pickup.Prop.Model)
 
-      RequestModel(ModelHash)
-      while not HasModelLoaded(ModelHash) do Wait(1) end
+        RequestModel(ModelHash)
+        while not HasModelLoaded(ModelHash) do Wait(1) end
 
-      local ped = CreatePed(4, data.Pickup.Prop.Model, ModeSecondData.ObjPosition.x, ModeSecondData.ObjPosition.y, ModeSecondData.ObjPosition.z-1.0, math.random( 1.0, 359.0), false, true)
+        local ped = CreatePed(4, data.Pickup.Prop.Model, ModeSecondData.ObjPosition.x, ModeSecondData.ObjPosition.y, ModeSecondData.ObjPosition.z-1.0, math.random( 1.0, 359.0), false, true)
 
-      FreezeEntityPosition(ped, true)
-      SetEntityInvincible(ped, true)
-      SetBlockingOfNonTemporaryEvents(ped, true)
-      ModeSecondData.Object = ped
-      CreateBlip(ModeSecondData.Object, data.Pickup.Blip)
-      SetNewWaypoint(ModeSecondData.ObjPosition.x, ModeSecondData.ObjPosition.y)
-    else
-      ESX.Game.SpawnLocalObject(data.Pickup.Prop.Model, ModeSecondData.ObjPosition, function(obj)
-        PlaceObjectOnGroundProperly(obj)
-        FreezeEntityPosition(obj, true)
-        ModeSecondData.Object = obj
+        FreezeEntityPosition(ped, true)
+        SetEntityInvincible(ped, true)
+        SetBlockingOfNonTemporaryEvents(ped, true)
+        ModeSecondData.Object = ped
         CreateBlip(ModeSecondData.Object, data.Pickup.Blip)
         SetNewWaypoint(ModeSecondData.ObjPosition.x, ModeSecondData.ObjPosition.y)
-      end)
-    end
+      else
+        ESX.Game.SpawnLocalObject(data.Pickup.Prop.Model, ModeSecondData.ObjPosition, function(obj)
+          PlaceObjectOnGroundProperly(obj)
+          FreezeEntityPosition(obj, true)
+          ModeSecondData.Object = obj
+          CreateBlip(ModeSecondData.Object, data.Pickup.Blip)
+          SetNewWaypoint(ModeSecondData.ObjPosition.x, ModeSecondData.ObjPosition.y)
+        end)
+      end
 
-    ModeSecondData.RemoveObj = function()
-      RemoveBlip(GetBlipFromEntity(ModeSecondData.Object))
-      SetNewWaypoint(ModeSecondData.SendingPosition.x, ModeSecondData.SendingPosition.y)
-      ESX.Game.DeleteObject(ModeSecondData.Object)
-      DeleteEntity(ModeSecondData.Object)
-      ModeSecondData.Object = nil
-    end
+      ModeSecondData.RemoveObj = function()
+        RemoveBlip(GetBlipFromEntity(ModeSecondData.Object))
+        SetNewWaypoint(ModeSecondData.SendingPosition.x, ModeSecondData.SendingPosition.y)
+        ESX.Game.DeleteObject(ModeSecondData.Object)
+        DeleteEntity(ModeSecondData.Object)
+        ModeSecondData.Object = nil
+      end
 
     SendNUIMessage({
       action = "showUI",
@@ -382,6 +363,7 @@ TaskSecondMode = function(data)
     })
 
     TaskSecondModeStart()
+
   end
 end
 
@@ -452,7 +434,7 @@ TaskProcess = function(delay)
     end
     local data = CurrentActionPorcessData.ModeSetting.Process
     playSound(data.Sound)
-    TriggerEvent("mythic_progressbar:client:progress", {
+    TriggerEvent("mythic_progbar:client:progress", {
         name = "unique_action_name",
         duration = data.Duration,
         label = Config.Text['cancle_key'],
@@ -470,7 +452,7 @@ TaskProcess = function(delay)
         }
     }, function(s)
       if not s then
-          TriggerServerEvent('top_jobs:processItems', data.RemoveItems, data.GetItems, data.AutoProcess)
+          TriggerServerEvent('uilt_jobs:processItems', data.RemoveItems, data.GetItems, data.AutoProcess)
       end
         IsActionProcess = false
     end)

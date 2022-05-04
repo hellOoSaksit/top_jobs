@@ -13,12 +13,7 @@ var mode2Interval;
             } else if (e.Mode == 2) {
                 createUIMode2(e)
             }
-        } else if (e.action == "showUIinf"){
-            if (e.Mode == 1) {
-                createUIMode1inf(e)
-            }
-        }
-        else if (e.action == "closeUI") {
+        } else if (e.action == "closeUI") {
             if (e.Mode == 1) {
                 closeUIMode1()
             } else if (e.Mode == 2) {
@@ -49,22 +44,6 @@ var mode2Interval;
         $("#mode1ui").fadeIn();
     }
 
-    function createUIMode1inf(data) {
-        closeUIMode1();
-
-        mode1time = (data.Time/1000)-1
-        let name = data.Name;
-        let time = ParseTime((data.Time/1000)-1);
-      
-        $(".ui").append('<div id="mode1ui" class="list"><div class="wrap">'+
-            '<div class="jobname">'+name+'</div>'+
-            // '<div class="timeout"><i data-feather="clock"></i> <span id="mode1time">'+time+'</span></div>'+
-        '</div></div>');
-        feather.replace({ class: 'feather-icon', 'stroke-width': 2 })
-        CoolDownMode1();
-        $("#mode1ui").fadeIn();
-    }
-
     function createUIMode2(data) {
         closeUIMode2();
         
@@ -87,11 +66,6 @@ var mode2Interval;
     function closeUIMode1() {
         clearInterval(mode1Interval);
         $("#mode1ui").remove();
-    }
-
-    function closeUIMode1inf() {
-        clearInterval(mode2Interval);
-        $("#mode1uiinf").remove();
     }
 
     function closeUIMode2() {
